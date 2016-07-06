@@ -1,0 +1,75 @@
+#!/usr/bin/env python
+
+import argparse
+from tempfile import mkstemp
+from shutil import move
+from os import remove, close
+import re
+
+def replaceInFile(args, file_path):
+    #Create temp file
+    fh, abs_path = mkstemp()
+    isLineFound = False
+
+    with open(abs_path,'w') as new_file:
+        with open(file_path) as old_file:
+            for line in old_file:
+                if args.regexp and args.regexp.search(line):
+                    new_file.write(args.line)
+                    isLineFound = True
+                else:
+                    new_file.write(line)
+            if not isLineFound:
+                new_file.write(args.line)
+    close(fh)
+    remove(file_path)
+    move(abs_path, file_path)
+
+
+def prepareArgs(args):
+    if args.regexp:
+        regexpFlags = False
+
+        if args.regexpIgnoreCase:
+            regexpFlags=re.IGNORECASE
+
+        args.regexp = re.compile(args.regexp, flags=regexpFlags)
+
+    if args.line:
+        args.line += "\n";
+
+    return args
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--ci',
+        dest='regexpIgnoreCase',
+        action='store_true',
+        help='Use case insensitive regexp'
+    )
+    parser.add_argument(
+        '--regexp',
+        dest='regexp',
+        help='Replacement line (regexp)'
+    )
+    parser.add_argument(
+        '--line',
+        dest='line',
+        help='Configurarion line value'
+    )
+    parser.add_argument(
+        'files',
+        metavar='filelist',
+        nargs='+',
+        help='Files'
+    )
+    args = prepareArgs(parser.parse_args())
+
+    for file in args.files:
+        replaceInFile(args, file)
+
+
+if __name__ == "__main__":
+	main()
