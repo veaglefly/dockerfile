@@ -9,18 +9,14 @@ import re
 def replaceInFile(args, file_path):
     #Create temp file
     fh, abs_path = mkstemp()
-    isLineFound = False
 
     with open(abs_path,'w') as new_file:
         with open(file_path) as old_file:
             for line in old_file:
                 if args.regexp and args.regexp.search(line):
                     new_file.write(args.line)
-                    isLineFound = True
                 else:
                     new_file.write(line)
-            if not isLineFound:
-                new_file.write(args.line)
     close(fh)
     remove(file_path)
     move(abs_path, file_path)
@@ -66,8 +62,6 @@ def main():
         nargs='+',
         help='Files'
     )
-
-
 
     args = prepareArgs(parser.parse_args())
 
