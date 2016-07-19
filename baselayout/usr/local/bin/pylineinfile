@@ -7,7 +7,7 @@ from os import remove, close
 import re
 
 def replaceInFile(args, file_path):
-    #Create temp file
+    # create temp file
     fh, abs_path = mkstemp()
     isLineFound = False
 
@@ -21,6 +21,7 @@ def replaceInFile(args, file_path):
                     new_file.write(line)
             if not isLineFound:
                 new_file.write(args.line)
+
     close(fh)
     remove(file_path)
     move(abs_path, file_path)
@@ -66,8 +67,6 @@ def main():
         nargs='+',
         help='Files'
     )
-
-
 
     args = prepareArgs(parser.parse_args())
 
